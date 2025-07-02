@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MDCAT Biology Quiz – Chapter: Acellular Life</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F8F9FA; /* Very light gray */
+            color: #2C3E50; /* Main text color */
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* Full viewport height */
+            overflow-x: hidden; /* Prevent horizontal scrolling */
+        }
+
+        /* Top Bar Styling */
+        .top-bar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0.75rem 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .top-bar .date-display {
+            color: #6D6875;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        /* Header Section Styling */
+        .header-section {
+            background-color: #ffffff;
+            padding: 1.5rem 1rem;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 1rem;
+        }
+
+        .quiz-title {
+            font-family: 'Roboto', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #2C3E50;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar-container {
+            width: 80%;
+            max-width: 600px;
+            height: 10px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            margin: 1rem auto;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, #20B2AA, #3EB489); /* Teal to Seafoam */
+            border-radius: 5px;
+            transition: width 0.3s ease-in-out;
+        }
+
+        .banner-logo {
+            max-width: 200px;
+            height: auto;
+            border-radius: 8px;
+            margin-top: 1rem;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .credits {
+            font-size: 0.85rem;
+            color: #6D6875;
+            margin-top: 0.5rem;
+        }
+
+        /* Card Styling (for login, quiz, results pages) */
+        .card {
+            background-color: #FFF5EE; /* Very light, warm tone */
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            padding: 1.5rem;
+            margin: 1rem auto;
+            max-width: 700px;
+            width: 90%;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Button Styling */
+        .button-gradient {
+            background-image: linear-gradient(to right, #E6E6FA, #FFDAB9); /* Lavender to PeachPuff - light and attractive */
+            color: #2C3E50; /* Dark text for contrast */
+            font-weight: bold;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            border: none;
+        }
+
+        .button-gradient:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+        }
+
+        .button-gradient:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .option-button {
+            background-color: #ffffff;
+            border: 1px solid #ddd; /* Light border */
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            text-align: left;
+            cursor: pointer;
+            transition: all 0.2s ease, transform 0.1s ease-out; /* Added transform for hover */
+            margin-bottom: 0.75rem;
+            color: #2C3E50;
+            font-weight: normal;
+        }
+
+        .option-button:hover:not(.selected):not(.correct):not(.incorrect) {
+            background-color: #f0f0f0; /* Slightly darker on hover */
+            transform: scale(1.02); /* Enlarge on hover */
+        }
+
+        .option-button.selected {
+            border-color: #6D6875; /* Medium gray for selected */
+            background-color: #f0f0f0;
+            font-weight: bold;
+        }
+
+        .option-button.correct {
+            background-color: #90EE90 !important; /* LightGreen */
+            border-color: #28a745 !important; /* Darker green border */
+            animation: pulse-green 0.5s ease-out forwards;
+        }
+
+        .option-button.incorrect {
+            background-color: #FF6B6B; /* Light Red */
+            border-color: #dc3545; /* Darker red border */
+            animation: shake-red 0.5s ease-out forwards;
+        }
+
+        /* Special Question Styling */
+        .special-question-card {
+            border: 3px solid #FFD700; /* Gold border */
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); /* Glowing effect */
+        }
+
+        /* Explanation Section Styling */
+        .explanation {
+            background-color: #e0f7fa; /* Light Cyan */
+            border-left: 5px solid #20B2AA; /* Teal border */
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 8px;
+            color: #2C3E50;
+            font-size: 0.9rem;
+            display: none; /* Hidden by default */
+        }
+
+        /* Timer and Progress Display */
+        .timer-display {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #2C3E50;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .question-progress {
+            font-size: 1rem;
+            color: #6D6875;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        /* Animations */
+        @keyframes pulse-green {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.01); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake-red {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                gap: 0.5rem;
+                padding: 0.5rem;
+                align-items: flex-start; /* Align to top-left on mobile */
+            }
+            .top-bar .date-display {
+                order: 2; /* Move date to bottom on mobile */
+                font-size: 0.8rem;
+            }
+            .top-bar .date-display .fa-calendar-alt {
+                margin-right: 0.2rem;
+            }
+            .quiz-title {
+                font-size: 1.5rem;
+            }
+            .banner-logo {
+                max-width: 150px;
+            }
+            .card {
+                margin: 0.75rem auto;
+                padding: 1rem;
+            }
+            .button-gradient {
+                padding: 0.6rem 1.2rem;
+                font-size: 0.9rem;
+            }
+            .option-button {
+                padding: 0.6rem 0.8rem;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <script>
+        // Disable right-click, specific keyboard shortcuts (Ctrl+U, Ctrl+Shift+I, Ctrl+Shift+J, F12), copy, and paste
+        document.addEventListener('contextmenu', event => event.preventDefault());
+        document.addEventListener('keydown', e => {
+            if ((e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j')) || e.key === 'F12') {
+                e.preventDefault();
+            }
+        });
+        document.addEventListener('copy', event => event.preventDefault());
+        document.addEventListener('paste', event => event.preventDefault());
+    </script>
+
+    <div class="top-bar">
+        <div class="date-display" id="liveDate">
+            <i class="fas fa-calendar-alt"></i>
+            <span></span>
+        </div>
+    </div>
+
+    <div class="header-section">
+        <h1 class="quiz-title" id="quizTitle">MDCAT Biology Quiz – Chapter: Acellular Life</h1>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <img src="https://i.ibb.co/zHDMrzbf/20250520-0957-Timeless-Healing-Wisdom-simple-compose-01jvqa0g2zfmzs4tq83z7k3h93.png" alt="Banner Logo" class="banner-logo mx-auto">
+        <div class="credits">
+            <strong>Medical Entrance Success Pakistan</strong>
+            <br>
+            Contact: 03265762698
+            <br>
+            Updated on: <span id="updatedDate"></span>
+        </div>
+    </div>
+
+    <main class="flex-grow flex items-center justify-center p-4">
+        <!-- All page sections are initially hidden to prevent flicker -->
+        <div id="loginPage" class="card">
+            <h2 class="text-xl font-bold mb-4 text-center">Login to Start Your Quiz</h2>
+            <div class="mb-4">
+                <label for="loginId" class="block text-sm font-medium text-gray-700 mb-1">ID:</label>
+                <input type="text" id="loginId" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" value="">
+            </div>
+            <div class="mb-6">
+                <label for="loginPassword" class="block text-sm font-medium text-gray-700 mb-1">Password:</label>
+                <input type="password" id="loginPassword" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" value="">
+            </div>
+            <p id="loginError" class="text-red-500 text-sm mb-4 hidden">Invalid ID or Password</p>
+            <button id="loginBtn" class="button-gradient w-full">Login</button>
+        </div>
+
+        <div id="candidateNamePage" class="card hidden">
+            <h2 class="text-xl font-bold mb-4 text-center">Candidate Information</h2>
+            <div class="mb-6">
+                <label for="candidateName" class="block text-sm font-medium text-gray-700 mb-1">Enter Full Name:</label>
+                <input type="text" id="candidateName" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500" placeholder="Your Full Name">
+            </div>
+            <div class="mb-6 flex items-center">
+                <input type="checkbox" id="surpriseMeCheckbox" class="mr-2">
+                <label for="surpriseMeCheckbox" class="text-sm font-medium text-gray-700">Enable "Surprise Me" Mode (Randomize 30% of MCQs)</label>
+            </div>
+            <p id="nameError" class="text-red-500 text-sm mb-4 hidden">Please enter your full name.</p>
+            <button id="startQuizBtn" class="button-gradient w-full">Start Quiz</button>
+        </div>
+
+        <div id="quizPage" class="card hidden">
+            <div class="timer-display" id="timerDisplay"></div>
+            <div class="question-progress" id="questionProgress"></div>
+            <h2 class="text-lg font-semibold mb-4" id="questionText"></h2>
+            <div id="optionsContainer" class="flex flex-col gap-3 mb-6">
+            </div>
+            <div class="flex justify-between">
+                <button id="prevBtn" class="button-gradient px-6 py-2">Previous</button>
+                <button id="nextBtn" class="button-gradient px-6 py-2">Next</button>
+                <button id="submitQuizBtn" class="button-gradient px-6 py-2 hidden">Submit Quiz</button>
+            </div>
+            <div id="explanationDiv" class="explanation"></div>
+        </div>
+
+        <div id="resultsPage" class="card hidden">
+            <h2 class="text-xl font-bold mb-4 text-center">Quiz Results</h2>
+            <p class="mb-2"><strong>Candidate Name:</strong> <span id="resultCandidateName"></span></p>
+            <p class="mb-2"><strong>Date of Quiz:</strong> <span id="resultDate"></span></p>
+            <p class="mb-2"><strong>Score:</strong> <span id="resultScore"></span> / <span id="maxScore"></span></p>
+            <p class="mb-2"><strong>Correct Answers:</strong> <span id="resultCorrect"></span></p>
+            <p class="mb-2"><strong>Incorrect Answers:</strong> <span id="resultIncorrect"></span></p>
+            <p class="mb-4"><strong>Time Taken:</strong> <span id="resultTimeTaken"></span></p>
+            <button id="restartQuizBtn" class="button-gradient w-full">Restart Quiz</button>
+        </div>
+    </main>
+
+    <script>
+        // --- Configuration and Data ---
+        const QUIZ_DATE_STR = "July 01, 2025"; // Specific date for the quiz
+        const QUIZ_DATE = new Date(QUIZ_DATE_STR);
+        const LOGIN_ID = "day1";
+        const LOGIN_PASSWORD = "mbbs";
+        const QUIZ_DURATION_MINUTES = 100; // 100 minutes for 100 questions
+        const FORMSPREE_URL = "https://formspree.io/f/xdkgvgbd";
+
+        // Quiz Data Structure
+        const originalQuizQuestions = []; // Stores the initial, unshuffled questions
+        let quizQuestions = []; // This array will be shuffled and used for the current quiz
+        let currentQuestionIndex = 0;
+        let userAnswers = [];
+        let quizStartTime;
+        let timerInterval;
+        let specialQuestionOriginalIndex = -1;
+
+        // --- Helper Functions ---
+        function setLiveDate() {
+            const dateSpan = document.querySelector('#liveDate span');
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            dateSpan.textContent = today.toLocaleDateString('en-US', options);
+            document.getElementById('updatedDate').textContent = today.toLocaleDateString('en-US', options);
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        function formatTime(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes} minutes ${seconds} seconds`;
+        }
+
+        function updateProgressBar() {
+            const progress = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('questionProgress').textContent = `Question ${currentQuestionIndex + 1}/${quizQuestions.length} – ${Math.round(progress)}% Complete`;
+        }
+
+        function showPage(pageId) {
+            ['loginPage', 'candidateNamePage', 'quizPage', 'resultsPage'].forEach(id => {
+                document.getElementById(id).classList.add('hidden');
+            });
+            document.getElementById(pageId).classList.remove('hidden');
+        }
+
+        function startTimer() {
+            quizStartTime = Date.now();
+            let timeLeft = QUIZ_DURATION_MINUTES * 60;
+
+            function updateTimerDisplay() {
+                const minutes = Math.floor(timeLeft / 60);
+                const seconds = timeLeft % 60;
+                document.getElementById('timerDisplay').textContent = `Time Left: ${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    submitQuiz(true);
+                } else {
+                    timeLeft--;
+                }
+            }
+            updateTimerDisplay();
+            timerInterval = setInterval(updateTimerDisplay, 1000);
+        }
+
+        function renderQuestion() {
+            const question = quizQuestions[currentQuestionIndex];
+            document.getElementById('questionText').innerHTML = question.question;
+            const optionsContainer = document.getElementById('optionsContainer');
+            optionsContainer.innerHTML = '';
+            
+            const quizCard = document.getElementById('quizPage');
+            quizCard.classList.remove('special-question-card');
+
+            const today = new Date();
+            const isTodayQuizDate = today.getFullYear() === QUIZ_DATE.getFullYear() &&
+                                   today.getMonth() === QUIZ_DATE.getMonth() &&
+                                   today.getDate() === QUIZ_DATE.getDate();
+
+            if (question.special && isTodayQuizDate) {
+                quizCard.classList.add('special-question-card');
+            }
+
+            // If options haven't been shuffled for this question yet, shuffle and store them
+            if (!question.shuffledOptions) {
+                const shuffledOptionsWithOriginalIndex = question.options.map((option, index) => ({
+                    optionText: option,
+                    originalIndex: index
+                }));
+                shuffleArray(shuffledOptionsWithOriginalIndex);
+                question.shuffledOptions = shuffledOptionsWithOriginalIndex;
+                question.shuffledCorrectOptionIndex = shuffledOptionsWithOriginalIndex.findIndex(
+                    opt => opt.originalIndex === question.correctOptionIndex
+                );
+            }
+
+            question.shuffledOptions.forEach((optionObj, index) => {
+                const button = document.createElement('button');
+                button.classList.add('option-button', 'w-full');
+                button.innerHTML = optionObj.optionText;
+                button.dataset.shuffledOptionIndex = index;
+                button.onclick = () => selectOption(index);
+
+                const userAnswer = userAnswers[currentQuestionIndex];
+                if (userAnswer) { // An answer for this question has been given
+                    button.disabled = true; // Disable all buttons
+                    const isCorrectAnswer = (index === question.shuffledCorrectOptionIndex);
+                    const isSelectedAnswer = (index === userAnswer.selectedOptionIndex);
+
+                    if (isCorrectAnswer) {
+                        button.classList.add('correct'); // Always show the correct answer in green
+                    }
+                    if (isSelectedAnswer && !userAnswer.isCorrect) {
+                        button.classList.add('incorrect'); // If this was the selected answer AND it was wrong, show it in red
+                    }
+                }
+                optionsContainer.appendChild(button);
+            });
+
+            const explanationDiv = document.getElementById('explanationDiv');
+            const userAnswer = userAnswers[currentQuestionIndex];
+            if (userAnswer) {
+                explanationDiv.innerHTML = `<p class="font-bold">Explanation:</p><p>${question.explanation}</p>`;
+                explanationDiv.style.display = 'block';
+            } else {
+                explanationDiv.style.display = 'none';
+            }
+
+            document.getElementById('prevBtn').classList.toggle('hidden', currentQuestionIndex === 0);
+            document.getElementById('nextBtn').classList.toggle('hidden', currentQuestionIndex === quizQuestions.length - 1);
+            document.getElementById('submitQuizBtn').classList.toggle('hidden', currentQuestionIndex !== quizQuestions.length - 1);
+
+            updateProgressBar();
+        }
+
+        function selectOption(selectedOptionIndex) {
+            // Prevent re-answering
+            if (userAnswers[currentQuestionIndex]) {
+                return;
+            }
+
+            const question = quizQuestions[currentQuestionIndex];
+            const isCorrect = (selectedOptionIndex === question.shuffledCorrectOptionIndex);
+
+            userAnswers[currentQuestionIndex] = {
+                questionIndex: currentQuestionIndex,
+                selectedOptionIndex: selectedOptionIndex,
+                isCorrect: isCorrect,
+            };
+
+            renderQuestion(); // Re-render to show feedback and explanation
+        }
+
+        function nextQuestion() {
+            if (currentQuestionIndex < quizQuestions.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            }
+        }
+
+        function prevQuestion() {
+            if (currentQuestionIndex > 0) {
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        function submitQuiz(isAutoSubmit = false) {
+            clearInterval(timerInterval);
+            const endTime = Date.now();
+            const timeTakenSeconds = Math.round((endTime - quizStartTime) / 1000);
+            let correctCount = 0;
+            let incorrectCount = 0;
+            userAnswers.forEach(answer => {
+                if (answer) {
+                    if (answer.isCorrect) correctCount++;
+                    else incorrectCount++;
+                }
+            });
+            const score = correctCount;
+            const candidateName = document.getElementById('candidateName').value;
+
+            document.getElementById('resultCandidateName').textContent = candidateName;
+            document.getElementById('resultDate').textContent = QUIZ_DATE_STR;
+            document.getElementById('resultScore').textContent = score;
+            document.getElementById('maxScore').textContent = quizQuestions.length;
+            document.getElementById('resultCorrect').textContent = correctCount;
+            document.getElementById('resultIncorrect').textContent = incorrectCount;
+            document.getElementById('resultTimeTaken').textContent = formatTime(timeTakenSeconds);
+            showPage('resultsPage');
+
+            const formData = new FormData();
+            formData.append('Candidate Name', candidateName);
+            formData.append('Date of Quiz', QUIZ_DATE_STR);
+            formData.append('Score', score);
+            formData.append('Correct Answers', correctCount);
+            formData.append('Incorrect Answers', incorrectCount);
+            formData.append('Time Taken', formatTime(timeTakenSeconds));
+            formData.append('Quiz ID', "Acellular Life");
+            fetch(FORMSPREE_URL, {
+                method: 'POST',
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            }).catch(error => console.error('Formspree submission error:', error));
+        }
+
+        // --- Quiz Initialization ---
+        function initializeQuiz() {
+            // This function now runs only once to load questions.
+            // Shuffling happens before the quiz starts.
+            if (originalQuizQuestions.length === 0) {
+                // MCQs for Chapter: Acellular Life (Shortened Options)
+                const allMCQs = [
+                    // Easy Questions (10 Qs)
+                    { question: "What does the term 'virus' mean in Latin?", options: ["Life", "Poison", "Small", "Particle"], correctOptionIndex: 1, explanation: "The word 'virus' is derived from Latin and means poison, reflecting the historical understanding of their pathogenic nature." },
+                    { question: "Which is a key characteristic of viruses?", options: ["Cellular organisms", "Reproduce independently", "Obligate intracellular parasites", "Have metabolic machinery"], correctOptionIndex: 2, explanation: "Viruses are obligate intracellular parasites, meaning they can only replicate inside the living cells of other organisms." },
+                    { question: "The protein coat of a virus is a:", options: ["Capsomere", "Envelope", "Capsid", "Genome"], correctOptionIndex: 2, explanation: "The capsid is the protein shell of a virus, enclosing its genetic material." },
+                    { question: "What is the basic subunit of a capsid?", options: ["Virion", "Capsomere", "Nucleocapsid", "Prion"], correctOptionIndex: 1, explanation: "The capsid is built from protein subunits called capsomeres." },
+                    { question: "A complete, infectious virus particle is a:", options: ["Viroid", "Prion", "Virion", "Bacteriophage"], correctOptionIndex: 2, explanation: "A virion is the complete, infectious form of a virus outside a host cell, with a core of RNA or DNA and a capsid." },
+                    { question: "Which disease is caused by a virus?", options: ["Tuberculosis", "Cholera", "Influenza", "Malaria"], correctOptionIndex: 2, explanation: "Influenza, commonly known as the flu, is a viral infection of the respiratory tract." },
+                    { question: "What genetic material is in viruses?", options: ["Only DNA", "Only RNA", "DNA and RNA", "Either DNA or RNA"], correctOptionIndex: 3, explanation: "A virus can have a genome consisting of either DNA or RNA, which can be single-stranded or double-stranded." },
+                    { question: "A virus that infects bacteria is a:", options: ["Viroid", "Prion", "Bacteriophage", "Retrovirus"], correctOptionIndex: 2, explanation: "Bacteriophages, or 'phages', are viruses that specifically infect and replicate within bacteria." },
+                    { question: "What is a common viral capsid shape?", options: ["Spherical", "Icosahedral", "Rectangular", "Amorphous"], correctOptionIndex: 1, explanation: "Many viruses have icosahedral (a 20-sided polygon) or helical capsids." },
+                    { question: "Are viruses considered living organisms?", options: ["Yes, they evolve", "No, not cellular", "Borderline living/non-living", "Yes, have genes"], correctOptionIndex: 2, explanation: "Viruses are often considered to be on the borderline of life as they exhibit some characteristics of life (like having genetic material and evolving) but lack others (like cellular structure and independent metabolism)." },
+                    
+                    // Medium Questions (50 Qs)
+                    { question: "What is the function of the viral envelope?", options: ["Protects genetic material", "Aids host cell attachment", "Involved in replication", "Synthesizes viral proteins"], correctOptionIndex: 1, explanation: "The viral envelope, derived from the host cell membrane, contains viral glycoproteins that help the virus bind to and enter host cells." },
+                    { question: "The lytic cycle of a bacteriophage causes:", options: ["Viral DNA integration", "Host cell death", "A dormancy period", "Host cell immunity"], correctOptionIndex: 1, explanation: "The lytic cycle is a reproductive cycle that culminates in the lysis (bursting) and death of the host cell, releasing new phage particles." },
+                    { question: "What is a prophage?", options: ["Assembling virus", "Lytic cycle phage", "Integrated phage DNA", "A viral protein"], correctOptionIndex: 2, explanation: "In the lysogenic cycle, the bacteriophage's DNA integrates into the bacterial chromosome, where it is known as a prophage." },
+                    { question: "Which enzyme is characteristic of retroviruses?", options: ["DNA polymerase", "RNA polymerase", "Reverse transcriptase", "Helicase"], correctOptionIndex: 2, explanation: "Retroviruses use the enzyme reverse transcriptase to synthesize DNA from their RNA genome, a process that is the reverse of normal transcription." },
+                    { question: "Hepatitis is an inflammation of which organ?", options: ["Kidney", "Lungs", "Liver", "Brain"], correctOptionIndex: 2, explanation: "Hepatitis refers to inflammation of the liver, which can be caused by several different viruses (Hepatitis A, B, C, etc.)." },
+                    { question: "What is the primary transmission mode for HIV?", options: ["Through the air", "Contaminated water", "Body fluid exchange", "Insect bites"], correctOptionIndex: 2, explanation: "HIV is primarily transmitted through direct contact with certain body fluids from an infected person, such as blood, semen, and vaginal fluids." },
+                    { question: "Which immune cells does HIV primarily target?", options: ["B cells", "Neutrophils", "Helper T cells", "Red blood cells"], correctOptionIndex: 2, explanation: "HIV infects and destroys Helper T cells (CD4+ cells), which are crucial for coordinating the immune response, leading to immunodeficiency." },
+                    { question: "What are viroids?", options: ["Infectious proteins", "Plant-infecting viruses", "Infectious plant RNA", "Incomplete virus particles"], correctOptionIndex: 2, explanation: "Viroids are the smallest known infectious agents, consisting only of a short strand of circular, single-stranded RNA without a protein coat, and they primarily cause plant diseases." },
+                    { question: "Prions are infectious agents made of:", options: ["DNA", "RNA", "Protein", "Lipids"], correctOptionIndex: 2, explanation: "Prions are unique infectious agents composed of misfolded protein (PrPSc) that can trigger normal proteins (PrPC) to misfold as well." },
+                    { question: "Mad Cow Disease (BSE) is caused by a:", options: ["Virus", "Bacterium", "Viroid", "Prion"], correctOptionIndex: 3, explanation: "Bovine Spongiform Encephalopathy (BSE), or Mad Cow Disease, is a fatal neurodegenerative disease in cattle caused by prions." },
+                    { question: "Virus classification is based on all EXCEPT:", options: ["Nucleic acid type", "Envelope presence", "Capsid shape", "Discovery organism"], correctOptionIndex: 3, explanation: "Viruses are primarily classified based on their morphology (shape), nucleic acid type (DNA/RNA, single/double-stranded), and presence or absence of an envelope, not their location of discovery." },
+                    { question: "What triggers a prophage into the lytic cycle?", options: ["Lack of nutrients", "Environmental stressor", "Presence of phages", "Host cell age"], correctOptionIndex: 1, explanation: "A prophage can remain dormant for generations but can be induced to exit the host chromosome and enter the lytic cycle by certain environmental cues, such as UV radiation or chemicals." },
+                    { question: "T4 bacteriophage tail fibers are for:", options: ["Injecting DNA", "Assembling capsid", "Host cell attachment", "Replicating genome"], correctOptionIndex: 2, explanation: "The tail fibers of a T4 phage recognize and bind to specific receptor sites on the surface of an E. coli bacterium, initiating the infection process." },
+                    { question: "A host cell carrying a prophage is a:", options: ["Lytic cell", "Lysogenic cell", "Resistant cell", "Transformed cell"], correctOptionIndex: 1, explanation: "A bacterial cell that harbors a prophage is called a lysogenic cell. It can replicate normally, copying the prophage and passing it to daughter cells." },
+                    { question: "Which of these is a DNA virus?", options: ["Influenza virus", "HIV", "Herpesvirus", "Poliovirus"], correctOptionIndex: 2, explanation: "Herpesviruses, which cause diseases like cold sores and chickenpox, have a double-stranded DNA genome." },
+                    { question: "Viral disease symptoms are caused by:", options: ["Virus consuming nutrients", "Viral toxin production", "Host immune response", "Virus blocking vessels"], correctOptionIndex: 2, explanation: "Symptoms of viral infections result from a combination of direct cell damage caused by viral replication and lysis, and the effects of the host's immune and inflammatory responses." },
+                    { question: "What is a 'temperate' phage?", options: ["Only lytic cycle", "Lytic & lysogenic cycles", "Infects at mid-temps", "Has simple structure"], correctOptionIndex: 1, explanation: "Phages that are capable of using both the lytic and lysogenic modes of reproduction are called temperate phages." },
+                    { question: "How do enveloped viruses exit the host?", options: ["By host lysis", "Through a channel", "Budding from membrane", "Active transport"], correctOptionIndex: 2, explanation: "Enveloped viruses exit the host cell by budding, a process where they wrap themselves in a piece of the host's plasma membrane, which becomes the viral envelope." },
+                    { question: "Creutzfeldt-Jakob disease (CJD) is from a:", options: ["Retrovirus", "Viroid", "Prion", "Bacterium"], correctOptionIndex: 2, explanation: "CJD is a fatal, degenerative brain disorder in humans that is caused by prions, similar to BSE in cows." },
+                    { question: "Which statement describes virus size?", options: ["Larger than bacteria", "Similar size to bacteria", "Smaller than bacteria", "Visible by light microscope"], correctOptionIndex: 2, explanation: "Viruses are extremely small, typically ranging from 20 to 300 nanometers, making them smaller than the smallest bacteria and requiring an electron microscope for visualization." },
+                    { question: "Virus-host specificity is determined by:", options: ["Viral nucleic acid", "Virus size", "Viral/host receptor interaction", "Host temperature"], correctOptionIndex: 2, explanation: "A virus can only infect cells that have specific receptor molecules on their surface that the viral proteins can bind to, creating a 'lock-and-key' fit." },
+                    { question: "What is the role of HIV integrase?", options: ["Synthesizes viral DNA", "Cuts viral proteins", "Inserts DNA into genome", "Helps virus budding"], correctOptionIndex: 2, explanation: "After reverse transcription, the HIV enzyme integrase incorporates the newly made viral DNA into the host cell's DNA in the nucleus." },
+                    { question: "Poliovirus has what genetic material?", options: ["dsDNA", "ssDNA", "ssRNA", "dsRNA"], correctOptionIndex: 2, explanation: "Poliovirus is an example of an RNA virus with a single-stranded RNA genome that can serve directly as mRNA." },
+                    { question: "A 'naked' virus lacks an:", options: ["Capsid", "Genome", "Envelope", "Tail fibers"], correctOptionIndex: 2, explanation: "Viruses that do not have an outer membrane derived from the host cell are referred to as naked or non-enveloped viruses." },
+                    { question: "Phage transfer of bacterial DNA is:", options: ["Transformation", "Conjugation", "Transduction", "Lysis"], correctOptionIndex: 2, explanation: "Transduction is a process where viruses (bacteriophages) can accidentally pick up and transfer pieces of bacterial DNA from one host to another." },
+                    { question: "What is the primary difference between prions and viruses?", options: ["Prions are larger", "Prions lack nucleic acid", "Viruses lack protein", "Prions infect plants"], correctOptionIndex: 1, explanation: "The most fundamental difference is that prions are infectious agents composed solely of protein and contain no genetic material, whereas viruses have a genome of DNA or RNA." },
+                    { question: "The influenza virus genome consists of:", options: ["Single circular DNA", "Single linear RNA", "Multiple RNA segments", "Multiple DNA segments"], correctOptionIndex: 2, explanation: "The influenza virus has a segmented genome, consisting of several different molecules of RNA, which allows for easy reassortment and contributes to its rapid evolution." },
+                    { question: "How do viroids cause plant disease?", options: ["Produce toxins", "Encode harmful proteins", "Disrupt gene expression", "Block vascular system"], correctOptionIndex: 2, explanation: "Viroid RNA does not code for proteins. Instead, it is thought to cause disease by interfering with the host's own gene-silencing mechanisms and regulation." },
+                    { question: "Where does virion assembly occur?", options: ["Only in nucleus", "Only in cytoplasm", "On cell surface", "Varies (nucleus/cytoplasm)"], correctOptionIndex: 3, explanation: "The site of viral assembly varies. For example, herpesviruses assemble in the nucleus, while poliovirus assembles in the cytoplasm." },
+                    { question: "What is lysogenic conversion?", options: ["Lytic to temperate", "Host phenotype change", "RNA to DNA", "Host becomes resistant"], correctOptionIndex: 1, explanation: "Lysogenic conversion is when a host bacterium exhibits new properties because of the genes carried by the integrated prophage. For example, the bacteria that cause diphtheria and botulism are only harmful because of prophage genes." },
+                    { question: "Tobacco Mosaic Virus (TMV) has what symmetry?", options: ["Icosahedral", "Complex", "Helical", "Binal"], correctOptionIndex: 2, explanation: "Tobacco Mosaic Virus is a classic example of a virus with helical symmetry, where the capsomeres are arranged in a spiral, forming a rod-shaped virion." },
+                    { question: "What is the function of influenza neuraminidase?", options: ["Aids viral entry", "Replicates viral RNA", "Aids virion release", "Integrates viral genome"], correctOptionIndex: 2, explanation: "Neuraminidase is a viral surface enzyme that cleaves sialic acid on the host cell surface, allowing the newly replicated virions to be released and not clump together." },
+                    { question: "Kuru disease is caused by a:", options: ["Insect-borne virus", "Waterborne bacterium", "Plant viroid", "Prion via cannibalism"], correctOptionIndex: 3, explanation: "Kuru is a prion disease that was transmitted among the Fore people through the practice of consuming the brains of deceased relatives." },
+                    { question: "A defining feature of a complex virus is:", options: ["Large RNA genome", "Simple icosahedral head", "Icosahedral & helical parts", "Lacks a capsid"], correctOptionIndex: 2, explanation: "Complex viruses have structures that are not purely icosahedral or helical. A T4 phage has an icosahedral head and a helical tail, a combination referred to as binal symmetry." },
+                    { question: "Which viral disease is globally eradicated?", options: ["Polio", "Measles", "Smallpox", "Influenza"], correctOptionIndex: 2, explanation: "Smallpox is the only human disease to have been completely eradicated worldwide, a major public health achievement made possible by a global vaccination campaign." },
+                    { question: "The normal, cellular prion protein is:", options: ["PrP-Sc", "PrP-C", "PrP-Vir", "PrP-Inf"], correctOptionIndex: 1, explanation: "The normal, non-pathogenic form of the protein found in host cells is called PrPC (Prion Protein, Cellular). The infectious, misfolded form is PrPSc (Prion Protein, Scrapie)." },
+                    { question: "How does a phage inject its DNA?", options: ["Entire phage enters", "Tail sheath contraction", "DNA diffuses in", "Host engulfs DNA"], correctOptionIndex: 1, explanation: "After attachment, the T4 phage's tail sheath contracts, acting like a syringe to inject its DNA through the bacterial cell wall and membrane into the cytoplasm." },
+                    { question: "A vaccine provides what type of immunity?", options: ["Natural active", "Artificial active", "Natural passive", "Artificial passive"], correctOptionIndex: 1, explanation: "Vaccines work by introducing antigens to the body, stimulating the immune system to produce its own antibodies and memory cells, which is a form of artificial active immunity." },
+                    { question: "The common cold is most often caused by:", options: ["Adenovirus", "Rhinovirus", "Coronavirus", "Influenza virus"], correctOptionIndex: 1, explanation: "Rhinoviruses are the most common viral infectious agents in humans and are the predominant cause of the common cold." },
+                    { question: "The range of cells a virus can infect is its:", options: ["Host range", "Infection spectrum", "Viral territory", "Cellular affinity"], correctOptionIndex: 0, explanation: "The host range of a virus is the limited number of host species or cell types that it can infect, determined by the compatibility of viral surface proteins and host cell receptors." },
+                    { question: "What is the role of HIV protease?", options: ["Allows viral fusion", "Synthesizes viral DNA", "Cuts viral polypeptides", "Helps virus budding"], correctOptionIndex: 2, explanation: "HIV protease is an enzyme that cleaves newly synthesized polyproteins into the individual proteins that make up the mature virion. It is a major target for antiviral drugs." },
+                    { question: "Which statement about the lysogenic cycle is true?", options: ["Causes immediate death", "Independent DNA replication", "Immediate host harm", "Replicates with host cell"], correctOptionIndex: 3, explanation: "During the lysogenic cycle, the integrated prophage is dormant but is passively replicated along with the host's chromosome each time the cell divides." },
+                    { question: "Mumps, measles, and rubella are from:", options: ["Bacteria", "Viruses", "Fungi", "Prions"], correctOptionIndex: 1, explanation: "These are all well-known viral diseases for which an effective combined vaccine (MMR) is available." },
+                    { question: "A 'plaque' in virology is a:", options: ["Bacterial colony", "Misfolded protein aggregate", "Lysis zone on bacteria", "Type of capsid"], correctOptionIndex: 2, explanation: "When bacteriophages are grown on a petri dish with a uniform layer (a 'lawn') of bacteria, each successful infection cycle creates a clear zone, or plaque, as the surrounding cells are destroyed." },
+                    { question: "A viroid's genetic material is:", options: ["Protected by capsid", "Double-stranded DNA", "Naked RNA", "Has histone proteins"], correctOptionIndex: 2, explanation: "Viroids are unique in that they are 'naked' particles of RNA, meaning they have no protein coat (capsid) to protect their genetic material." },
+                    { question: "Which is NOT a characteristic of prions?", options: ["Resistant to heat", "Induce immune response", "Composed of protein", "Cause neurodegeneration"], correctOptionIndex: 1, explanation: "A key feature of prion diseases is the absence of an inflammatory or immune response, as the prion is a misfolded version of a host's own protein, not a foreign antigen." },
+                    { question: "The first virus discovered was:", options: ["Bacteriophage", "Influenza virus", "HIV", "Tobacco Mosaic Virus"], correctOptionIndex: 3, explanation: "The study of virology began with the discovery of Tobacco Mosaic Virus by Martinus Beijerinck in 1898, who showed that the infectious agent could pass through filters that blocked bacteria." },
+                    { question: "How do prions propagate?", options: ["Use host ribosomes", "Convert normal proteins", "Insert into genome", "Use reverse transcriptase"], correctOptionIndex: 1, explanation: "Prions propagate by acting as a template, inducing normally folded PrPC proteins to change their conformation to the infectious PrPSc state, setting off a chain reaction." },
+                    { question: "Which part of a bacteriophage enters the host?", options: ["The entire phage", "Head and capsid", "Only nucleic acid", "Tail and base"], correctOptionIndex: 2, explanation: "In a T4 phage infection, the capsid and tail structure remain outside the bacterium. Only the DNA genome is injected into the host cell." },
+                    { question: "Viruses are best described as:", options: ["Prokaryotic", "Eukaryotic", "Acellular", "Multicellular"], correctOptionIndex: 2, explanation: "Viruses are acellular, meaning they are not composed of cells. They lack the organelles and metabolic machinery found in prokaryotic and eukaryotic cells." },
+
+                    // Tough Questions (40 Qs)
+                    { question: "The Baltimore classification groups viruses by:", options: ["Diseases caused", "Host range", "mRNA synthesis pathway", "Capsid size"], correctOptionIndex: 2, explanation: "The Baltimore classification system categorizes viruses into seven groups based on their type of genome (DNA, RNA, single-stranded, double-stranded) and their method of replication and mRNA production." },
+                    { question: "A virulent phage is one that:", options: ["Integrates into genome", "Only lytic cycle", "Has complex capsid", "Has wide host range"], correctOptionIndex: 1, explanation: "Phages that reproduce only by the lytic cycle, always resulting in host cell death, are termed virulent phages." },
+                    { question: "What is the role of influenza hemagglutinin?", options: ["Cleaves virus from host", "Primary capsid protein", "Binds host receptors", "Replicates viral RNA"], correctOptionIndex: 2, explanation: "Hemagglutinin is the viral protein responsible for recognizing and binding to sialic acid receptors on the surface of host respiratory cells, facilitating viral entry." },
+                    { question: "Resistance to a similar virus after infection is:", options: ["Superinfection exclusion", "Lysogenic immunity", "Viral interference", "Host restriction"], correctOptionIndex: 0, explanation: "Superinfection exclusion (or immunity) is a phenomenon where a cell already hosting a virus becomes resistant to a second infection by a closely related virus, often due to the first virus altering cell surface receptors." },
+                    { question: "Potato spindle tuber disease is from a:", options: ["Complex virus", "Bacteriophage", "Prion", "Viroid"], correctOptionIndex: 3, explanation: "Potato spindle tuber viroid (PSTVd) was the first viroid to be identified and is the causative agent of this plant disease." },
+                    { question: "Prion conversion involves a change in:", options: ["Primary structure", "Secondary structure change", "Quaternary structure", "Carbohydrate addition"], correctOptionIndex: 1, explanation: "The pathogenic conversion involves a conformational change where a portion of the protein's alpha-helical structure is refolded into beta-sheets, making it stable and prone to aggregation." },
+                    { question: "Which is an example of a satellite virus?", options: ["Hepatitis B virus", "Hepatitis D virus", "Influenza A virus", "HIV-1"], correctOptionIndex: 1, explanation: "Hepatitis D virus (HDV) is a satellite virus (or subviral agent) because it can only propagate in the presence of a 'helper' virus, which is Hepatitis B virus (HBV), as it needs HBV's surface antigen for its own envelope." },
+                    { question: "The concept of a 'filterable virus' was shown by:", options: ["Louis Pasteur", "Robert Koch", "Dmitri Ivanovsky", "Edward Jenner"], correctOptionIndex: 2, explanation: "In 1892, Dmitri Ivanovsky showed that the agent causing tobacco mosaic disease was small enough to pass through a ceramic filter designed to trap all known bacteria, leading to the idea of a 'filterable virus'." },
+                    { question: "A key difference in (+)RNA vs (-)RNA virus replication is:", options: ["(+)RNA brings polymerase", "(+)RNA is translatable", "(-)RNA integrates DNA", "(+)RNA replicates in nucleus"], correctOptionIndex: 1, explanation: "The genome of a positive-sense RNA virus is essentially mRNA and can be directly translated. A negative-sense RNA virus's genome is complementary to mRNA and must first be transcribed into positive-sense RNA by a viral RNA-dependent RNA polymerase." },
+                    { question: "Fatal Familial Insomnia is a human:", options: ["Viroid disease", "Prion disease", "Retroviral disease", "Bacterial disease"], correctOptionIndex: 1, explanation: "Fatal Familial Insomnia is an extremely rare, inherited prion disease of the brain." },
+                    { question: "T-even phages have what capsid structure?", options: ["Helical", "Icosahedral", "Binal symmetry", "Filamentous"], correctOptionIndex: 2, explanation: "T-even phages have a complex structure with an icosahedral head and a helical tail, a combination known as binal symmetry." },
+                    { question: "Acyclovir acts as a:", options: ["Protease inhibitor", "Reverse transcriptase inhibitor", "DNA chain terminator", "Neuraminidase inhibitor"], correctOptionIndex: 2, explanation: "Acyclovir is a structural analog of guanosine. It is incorporated into the growing viral DNA chain by the viral DNA polymerase, but it lacks the 3'-OH group needed for the next nucleotide to attach, thus terminating replication." },
+                    { question: "What is the viral 'eclipse period'?", options: ["Prophage dormancy time", "Infection to symptom time", "No virions assembled", "Attachment time"], correctOptionIndex: 2, explanation: "The eclipse period is the initial phase of replication where the virus is disassembled and its components are being synthesized, so no infectious virus particles can be detected within the cell." },
+                    { question: "The high mutation rate of RNA viruses is due to:", options: ["RNA instability", "No polymerase proofreading", "Frequent UV damage", "Segmented genomes"], correctOptionIndex: 1, explanation: "The RNA-dependent RNA polymerases used by many RNA viruses to replicate their genomes do not have the proofreading mechanisms that DNA polymerases do, leading to a much higher rate of errors (mutations)." },
+                    { question: "Which virus is NOT transmitted via respiratory route?", options: ["Influenza virus", "Rhinovirus", "Measles virus", "Hepatitis A virus"], correctOptionIndex: 3, explanation: "Hepatitis A is transmitted through the fecal-oral route, typically via contaminated food or water, unlike the others which are spread by respiratory droplets." },
+                    { question: "The term 'cytopathic effect' (CPE) refers to:", options: ["Cancer-causing ability", "Viral-induced cell changes", "Viral budding process", "Host immune response"], correctOptionIndex: 1, explanation: "Cytopathic effect describes the visible damage and changes to host cells, such as rounding, fusion into syncytia, or lysis, that occur as a result of viral infection." },
+                    { question: "The primary reservoir for Ebola virus is:", options: ["Primates", "Rodents", "Fruit bats", "Domestic pigs"], correctOptionIndex: 2, explanation: "While the exact reservoir is still a subject of research, fruit bats are considered the most likely natural reservoir for the Ebola virus." },
+                    { question: "A 'pseudovirion' is a virus particle that:", options: ["Lacks nucleic acid", "Contains host DNA", "Has misfolded protein", "Has genome fragment"], correctOptionIndex: 1, explanation: "During viral assembly, capsids can sometimes accidentally package fragments of the host's nucleic acid instead of the viral genome. These particles, called pseudovirions, are not infectious but can transfer host genes." },
+                    { question: "The oncogenic potential of HPV is due to its ability to:", options: ["Cause chronic inflammation", "Disrupt tumor suppressors", "Carry bacterial toxins", "Suppress host immunity"], correctOptionIndex: 1, explanation: "Certain high-risk strains of HPV produce proteins (like E6 and E7) that interfere with the function of key tumor suppressor proteins (p53 and pRb) in the host cell, leading to uncontrolled cell growth and cancer." },
+                    { question: "What is antigenic shift in influenza?", options: ["Minor antigen changes", "Major antigen changes", "Host species change", "Drug resistance process"], correctOptionIndex: 1, explanation: "Antigenic shift is a major change that occurs when two different influenza strains infect the same cell and their segmented genomes get mixed, creating a new, often highly pathogenic, subtype. This is responsible for pandemics." },
+                    { question: "Scrapie is a prion disease affecting:", options: ["Cattle", "Humans", "Sheep and goats", "Deer and elk"], correctOptionIndex: 2, explanation: "Scrapie is the earliest described prion disease, a fatal, degenerative condition affecting the nervous systems of sheep and goats." },
+                    { question: "What digests the bacterial cell wall during phage entry?", options: ["Capsid head", "Tail fibers", "Base plate lysozyme", "The DNA itself"], correctOptionIndex: 2, explanation: "The base plate of the T4 phage contains lysozyme, an enzyme that degrades the peptidoglycan of the bacterial cell wall, creating a small hole for the DNA to pass through." },
+                    { question: "A defective virus is one that:", options: ["Has a mutation", "Needs helper virus", "Lacks a capsid", "Cannot attach to cells"], correctOptionIndex: 1, explanation: "Defective viruses are genetically deficient and cannot complete their replication cycle alone. They require co-infection with a helper virus that provides the missing function(s)." },
+                    { question: "Reverse transcriptase discovery challenged the:", options: ["Universal genetic code", "Semiconservative replication model", "Central Dogma", "Evolution theory"], correctOptionIndex: 2, explanation: "The discovery that genetic information could flow 'backwards' from RNA to DNA contradicted the original, simple version of the Central Dogma, which stated that information only flowed from DNA to RNA to protein." },
+                    { question: "What is a viral scaffold protein's function?", options: ["Forms final capsid", "Temporary assembly framework", "Connects capsid to envelope", "Packages nucleic acid"], correctOptionIndex: 1, explanation: "In the assembly of some complex viruses, scaffolding proteins are used to guide the correct formation of the procapsid structure. These proteins are then typically removed or degraded before the final maturation of the virion." },
+                    { question: "Chronic Wasting Disease (CWD) is a prion disease in:", options: ["Mink", "Deer, elk, moose", "Cats", "Pigs"], correctOptionIndex: 1, explanation: "CWD is a contagious neurological disease that affects cervids (members of the deer family)." },
+                    { question: "What is a virophage?", options: ["Infects other viruses", "A very large virus", "Can become prophage", "Infects only archaea"], correctOptionIndex: 0, explanation: "A virophage is a type of satellite virus that replicates within a host cell that is also co-infected with a giant virus, essentially parasitizing the giant virus's replication machinery." },
+                    { question: "Herpesvirus latency is a state where:", options: ["Virus replicates slowly", "Minimal gene expression", "Virus constantly buds", "Host is immune"], correctOptionIndex: 1, explanation: "Latency is a key feature of herpesviruses, where the virus becomes dormant within certain host cells (e.g., neurons) and exists as an episome (a circular piece of DNA) with very few genes being expressed, allowing it to evade the immune system." },
+                    { question: "The prion 'species barrier' refers to:", options: ["Cross-species difficulty", "Blood-brain barrier", "Host cell membrane", "Immune prevention"], correctOptionIndex: 0, explanation: "The species barrier describes the observation that it is generally difficult for prions to be transmitted between different species, likely due to small differences in the primary amino acid sequence of the PrP protein." },
+                    { question: "What is abortive infection?", options: ["Replication failure", "Cancerous transformation", "Latent viral infection", "Cleared by immunity"], correctOptionIndex: 0, explanation: "An abortive infection occurs when a virus successfully infects a cell but cannot complete its replication cycle to produce progeny virions, often because the host cell lacks an essential factor." },
+                    { question: "A characteristic of a filamentous virus is a:", options: ["20-sided capsid", "Long, flexible rod", "Distinct head/tail", "Is always enveloped"], correctOptionIndex: 1, explanation: "Filamentous viruses, like the M13 bacteriophage, have a helical capsid arranged into a long, flexible filament." },
+                    { question: "The Icosahedral Capsid structure is advantageous because it:", options: ["Is easiest to assemble", "Holds most genetic material", "Is an efficient, strong shell", "Is flexible, changes shape"], correctOptionIndex: 2, explanation: "The icosahedral shape is a very efficient way to build a sturdy, closed container from a single or few repeating protein subunits, which is economical for the virus's small genome." },
+                    { question: "What is the role of VpG in poliovirus?", options: ["Receptor-binding protein", "Structural capsid protein", "RNA synthesis primer", "Cleaves polyprotein"], correctOptionIndex: 2, explanation: "Instead of a 5' cap like eukaryotic mRNA, the poliovirus RNA genome has a small protein called VpG covalently attached to its 5' end, which functions as a primer for the initiation of RNA replication." },
+                    { question: "Viral 'uncoating' is the:", options: ["Attachment to host", "Releasing nucleic acid", "Assembling new capsids", "Release of virions"], correctOptionIndex: 1, explanation: "Uncoating is the critical step after entry where the viral capsid is removed or disassembled, freeing the viral genome so that it can be replicated and transcribed." },
+                    { question: "A 'syncytium' in viral infection is a:", options: ["Prion aggregate", "Mass of virions", "Fused multinucleated cell", "Clear bacterial lawn"], correctOptionIndex: 2, explanation: "Some viruses, like HIV and measles, can cause infected cells to fuse together, forming giant, multinucleated cells called syncytia. This is a type of cytopathic effect." },
+                    { question: "The CRISPR-Cas system functions as:", options: ["Gene transfer mechanism", "Adaptive phage immunity", "DNA repair system", "Gene regulation method"], correctOptionIndex: 1, explanation: "CRISPR-Cas is a sophisticated defense mechanism where bacteria store a 'memory' of past phage infections (as short DNA sequences called spacers) and use it to recognize and destroy the same phage's DNA upon reinfection." },
+                    { question: "Which virus has a gapped dsDNA genome and replicates via RNA?", options: ["Herpesvirus", "Poxvirus", "Hepatitis B virus", "Papillomavirus"], correctOptionIndex: 2, explanation: "Hepatitis B virus is unique. It has a DNA genome but replicates using an RNA pregenome and the enzyme reverse transcriptase, placing it in its own family, the Hepadnaviridae." },
+                    { question: "What is the function of viral 'early genes'?", options: ["Code for capsid", "Expressed in lysogeny", "Replication/takeover proteins", "Code for lysis"], correctOptionIndex: 2, explanation: "In many DNA viruses, gene expression is temporally regulated. Early genes are transcribed first and encode non-structural proteins like polymerases and factors that modify the host cell. Late genes are transcribed later and typically encode structural proteins for the new virions." },
+                    { question: "The 'one-step growth curve' experiment showed:", options: ["Viral capsid structure", "Chemical nature of prions", "Phage lifecycle timing", "Viral latency process"], correctOptionIndex: 2, explanation: "This experiment demonstrated that phages do not grow and divide like bacteria but are assembled from components, revealing the distinct eclipse, maturation, and latent periods of the viral reproductive cycle." },
+                    { question: "What distinguishes a viroid from a satellite RNA?", options: ["Viroids are larger", "Viroids need helper", "Satellites need helper", "Viroids infect animals"], correctOptionIndex: 2, explanation: "Both are small RNA molecules, but viroids are autonomous and can replicate on their own in a host cell. Satellite RNAs are dependent on a specific helper virus for their replication and encapsidation." }
+                ];
+                originalQuizQuestions.push(...allMCQs);
+                specialQuestionOriginalIndex = Math.floor(Math.random() * originalQuizQuestions.length);
+            }
+        }
+        
+        function setupQuiz() {
+            // This function prepares a fresh quiz attempt
+            quizQuestions = JSON.parse(JSON.stringify(originalQuizQuestions));
+            quizQuestions[specialQuestionOriginalIndex].special = true;
+
+            const surpriseMe = document.getElementById('surpriseMeCheckbox').checked;
+            if (surpriseMe) {
+                const numToRandomize = Math.floor(quizQuestions.length * 0.30);
+                const indices = Array.from({ length: quizQuestions.length }, (_, i) => i);
+                shuffleArray(indices);
+                const shuffledSubsetIndices = indices.slice(0, numToRandomize);
+                const questionsToShuffle = shuffledSubsetIndices.map(idx => quizQuestions[idx]);
+                shuffleArray(questionsToShuffle);
+                // Create a new array for the quiz to avoid index mismatches
+                let tempQuiz = [...quizQuestions];
+                for (let i = 0; i < numToRandomize; i++) {
+                    tempQuiz[shuffledSubsetIndices[i]] = questionsToShuffle[i];
+                }
+                quizQuestions = tempQuiz;
+            } else {
+                shuffleArray(quizQuestions);
+            }
+            // Clear any previous shuffled options
+            quizQuestions.forEach(q => q.shuffledOptions = null);
+        }
+
+        // --- Event Listeners ---
+        document.getElementById('loginBtn').addEventListener('click', () => {
+            const id = document.getElementById('loginId').value;
+            const password = document.getElementById('loginPassword').value;
+            if (id === LOGIN_ID && password === LOGIN_PASSWORD) {
+                document.getElementById('loginError').classList.add('hidden');
+                showPage('candidateNamePage');
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('startQuizBtn').addEventListener('click', () => {
+            const candidateNameInput = document.getElementById('candidateName');
+            const nameError = document.getElementById('nameError');
+            if (candidateNameInput.value.trim()) {
+                nameError.classList.add('hidden');
+                userAnswers = new Array(quizQuestions.length).fill(null);
+                currentQuestionIndex = 0;
+                setupQuiz(); // Set up and shuffle questions for the new attempt
+                startTimer();
+                renderQuestion();
+                showPage('quizPage');
+            } else {
+                nameError.classList.remove('hidden');
+            }
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+        document.getElementById('prevBtn').addEventListener('click', prevQuestion);
+        document.getElementById('submitQuizBtn').addEventListener('click', () => submitQuiz(false));
+        document.getElementById('restartQuizBtn').addEventListener('click', () => {
+            currentQuestionIndex = 0;
+            userAnswers = [];
+            clearInterval(timerInterval);
+            document.getElementById('loginId').value = '';
+            document.getElementById('loginPassword').value = '';
+            document.getElementById('candidateName').value = '';
+            document.getElementById('surpriseMeCheckbox').checked = false;
+            showPage('loginPage');
+        });
+
+        // Initialize UI on load
+        setLiveDate();
+        initializeQuiz(); // Load questions into memory once
+        showPage('loginPage');
+    </script>
+</body>
+</html>
